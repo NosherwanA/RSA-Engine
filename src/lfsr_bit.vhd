@@ -1,11 +1,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use work.lfsr_pkg.all;
 
 entity lfsr_bit is port (
 
 	reset		: in std_logic;
-	clk		: in std_logic;
+	clk			: in std_logic;
 	en			: in std_logic;
 	seed		: in std_logic_vector(9 downto 0);
 	rbit_out	: out std_logic
