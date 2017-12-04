@@ -81,7 +81,27 @@ architecture internal of RSA is
 
 
 begin
+    --COMPONENTS TO BE USED
+    Prime_Gen: PRNG
+        port map(
+            clk,
+            next_state,
+            clk, -- Generate a new number every clk cycle continuously
+            PRNG_output
+        );
+    
+    Test_Num: MRT
+        port map(
+            number_to_test,
+            clk,
+            MRT_reset,
+            MRT_start,
+            MRT_isPrime,
+            MRT_busy,
+            MRT_done 
+        );
 
+    --STATE MACHINE ITSELF
     Register_Section: process (clk, reset)
     begin
         if rising_edge(clk) then
