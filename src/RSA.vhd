@@ -60,17 +60,30 @@ architecture internal of RSA is
     type State_Type is (START,
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_GET_NUMBER,
-                        PRIME_GENERATOR_TEST
+                        PRIME_GENERATOR_TEST_NUMBER,
+                        PRIME_GENERATOR_TEST_RESULT,
                         );
 
     signal curr_state       : State_Type;
     signal next_state       : State_Type;
 
+    -- A) For Prime Number Genereator
+    signal number_to_test   : std_logic_vector(7 downto 0);
+    
+    signal PRNG_output      : std_logic_vector(7 downto 0);
+    signal PRNG_reset       : std_logic;
+
+    signal MRT_reset        : std_logic;
+    signal MRT_start        : std_logic;
+    signal MRT_busy         : std_logic;
+    signal MRT_done         : std_logic;
+    signal MRT_isPrime      : std_logic;
+
+
 begin
 
     Register_Section: process (clk, reset)
     begin
-
         if rising_edge(clk) then
             if (reset = '0') then
                 curr_state <= S_START;
@@ -82,7 +95,7 @@ begin
     
     Transition_Section: process(clk, curr_state)
     begin
-    
+        
     end process;
 
     Decoder_Section: process(curr_state)
