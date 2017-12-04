@@ -57,11 +57,12 @@ architecture internal of RSA is
 
     -- SIGNALS USED
     
-    type State_Type is (START,
+    type State_Type is (S_START,
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_GET_NUMBER,
                         PRIME_GENERATOR_TEST_NUMBER,
                         PRIME_GENERATOR_TEST_RESULT,
+                        S_DONE
                         );
 
     signal curr_state       : State_Type;
@@ -115,7 +116,16 @@ begin
     
     Transition_Section: process(clk, curr_state)
     begin
-        
+        case curr_state is
+            when S_START =>
+
+            when PRIME_GENERATOR_START =>  
+
+            when PRIME_GENERATOR_GET_NUMBER =>
+
+            when PRIME_GENERATOR_TEST_NUMBER =>
+
+        end case;
     end process;
 
     Decoder_Section: process(curr_state)
