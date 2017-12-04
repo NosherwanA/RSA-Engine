@@ -56,6 +56,15 @@ architecture internal of RSA is
     end component;
 
     -- SIGNALS USED
+    
+    type State_Type is (START,
+                        PRIME_GENERATOR_START,
+                        PRIME_GENERATOR_GET_NUMBER,
+                        PRIME_GENERATOR_TEST
+                        );
+
+    signal curr_state       : State_Type;
+    signal next_state       : State_Type;
 
 begin
 
