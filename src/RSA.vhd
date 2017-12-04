@@ -68,4 +68,26 @@ architecture internal of RSA is
 
 begin
 
+    Register_Section: process (clk, reset)
+    begin
+
+        if rising_edge(clk) then
+            if (reset = '0') then
+                curr_state <= S_START;
+            else
+                curr_state <= next_state;
+            end if;
+        end if;
+    end process;
+    
+    Transition_Section: process(clk, curr_state)
+    begin
+    
+    end process;
+
+    Decoder_Section: process(curr_state)
+    begin
+
+    end process;
+
 end architecture;
