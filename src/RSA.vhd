@@ -58,6 +58,7 @@ architecture internal of RSA is
     -- SIGNALS USED
     
     type State_Type is (S_START,
+                        OPERATION_SELECTION,
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_GET_NUMBER,
                         PRIME_GENERATOR_TEST_NUMBER,
@@ -119,7 +120,10 @@ begin
         case curr_state is
             when S_START =>
 
-            when PRIME_GENERATOR_START =>  
+            when OPERATION_SELECTION =>
+
+            when PRIME_GENERATOR_START => 
+
 
             when PRIME_GENERATOR_GET_NUMBER =>
 
