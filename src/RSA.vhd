@@ -60,7 +60,7 @@ architecture internal of RSA is
     type State_Type is (S_START,
                         OPERATION_SELECTION,
                         PRIME_GENERATOR_START,
-                        PRIME_GENERATOR_GET_NUMBER,
+                        PRIME_GENERATOR_WAIT,
                         PRIME_GENERATOR_TEST_NUMBER,
                         PRIME_GENERATOR_TEST_RESULT,
                         S_DONE
@@ -75,6 +75,7 @@ architecture internal of RSA is
     signal PRNG_output      : std_logic_vector(7 downto 0);
     signal PRNG_reset       : std_logic;
 
+    signal MRT_input_num    : std_logic_vector(7 downto 0);
     signal MRT_reset        : std_logic;
     signal MRT_start        : std_logic;
     signal MRT_busy         : std_logic;
@@ -87,14 +88,14 @@ begin
     Prime_Gen: PRNG
         port map(
             clk,
-            next_state,
+            PRNG_reset,
             clk, -- Generate a new number every clk cycle continuously
             PRNG_output
         );
     
     Test_Num: MRT
         port map(
-            number_to_test,
+            MRT_input_num,
             clk,
             MRT_reset,
             MRT_start,
@@ -121,13 +122,29 @@ begin
             when S_START =>
 
             when OPERATION_SELECTION =>
+            
 
             when PRIME_GENERATOR_START => 
+                MRT_start <= '1';
+                MRT_input_num <= PRNG_output;
+                number_to_test <= PRNG_output;
 
+                next_state <= PRIME_GENERATOR_WAIT;
 
-            when PRIME_GENERATOR_GET_NUMBER =>
+            when PRIME_GENERATOR_WAIT =>
+                MRT_start <= '0';
+                if(MRT_done = '1') then
+                    next_state <= PRIME_GENERATOR_TEST_NUMBER;
+                else
+                    next_state <= PRIME_GENERATOR_WAIT;
+                end if;
 
             when PRIME_GENERATOR_TEST_NUMBER =>
+                if(mm_isPrime = '1') then
+                    next_state <= ; --TBD
+                else
+                    next_state <= PRIME_GENERATOR_START;
+                end if;
 
         end case;
     end process;
