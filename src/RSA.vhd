@@ -82,6 +82,16 @@ architecture internal of RSA is
     signal MRT_done         : std_logic;
     signal MRT_isPrime      : std_logic;
 
+    -- B) For Encryption and Decryption
+    signal ME_base          : std_logic_vector(7 downto 0);
+    signal ME_exponent      : std_logic_vector(7 downto 0);
+    signal ME_modulus       : std_logic_vector(7 downto 0);
+    signal ME_result        : std_logic_vector(7 downto 0);
+    signal ME_start         : std_logic;
+    signal ME_reset         : std_logic;
+    signal ME_busy          : std_logic;
+    signal ME_done          : std_logic;
+
 
 begin
     --COMPONENTS TO BE USED
@@ -102,6 +112,19 @@ begin
             MRT_isPrime,
             MRT_busy,
             MRT_done 
+        );
+
+    Mod_Exp: Modular_Exponentiator
+        port map(
+            ME_base,
+            ME_exponent,
+            ME_modulus,
+            clk,
+            ME_reset,
+            ME_start,
+            ME_busy,
+            ME_result,
+            ME_done
         );
 
     --STATE MACHINE ITSELF
@@ -141,10 +164,11 @@ begin
 
             when PRIME_GENERATOR_TEST_NUMBER =>
                 if(mm_isPrime = '1') then
-                    next_state <= ; --TBD
+                    next_state <= IDLE; 
                 else
                     next_state <= PRIME_GENERATOR_START;
                 end if;
+
 
         end case;
     end process;
