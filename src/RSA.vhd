@@ -235,7 +235,52 @@ begin
 
     Decoder_Section: process(curr_state)
     begin
+        case curr_state is
+            when S_RESET =>
+                busy <= '1';
+                done <= '1';
+                result <= "00000000";
 
+            when IDLE =>
+                busy <= '0';
+                done <= '1';
+                result <= to_display;
+
+            when OPERATION_SELECTION => 
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when PRIME_GENERATOR_START =>
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when PRIME_GENERATOR_WAIT =>
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when PRIME_GENERATOR_TEST_RESULT =>
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when MOD_EXP_START =>
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when MOD_EXP_WAIT =>
+                busy <= '1';
+                done <= '0';
+                result <= "00000000";
+
+            when others =>
+                busy <= '1';
+                done <= '1';
+                result <= "00000000";
+        end case;
     end process;
 
 end architecture;
