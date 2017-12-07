@@ -59,3 +59,54 @@ begin
         in_clk <= '1';
         wait for (TIME_PERIOD/2);
     end process;
+
+    simulation_process: process
+    begin
+        in_reset <= '0';
+
+        wait for (TIME_PERIOD/2);
+        -- test for "00" instruction set
+        in_instruction <= "00";
+
+        wait until (out_done = '1')
+
+        wait for (TIME_PERIOD/2);
+        --encryption
+        in_instructions <= "01";
+        in_message <= 
+        in_key <= 
+        in_in_modulus <= 
+        in_start <= '1';
+
+        wait fot (3*(TIME_PERIOD/2));
+        in_start <= '0';
+
+        wait until (out_done = '1');
+        
+        wait for (TIME_PERIOD/2);
+        -- decryption
+        in_instructions <= "10";
+        in_message <= 
+        in_key <= 
+        in_in_modulus <= 
+        in_start <= '1';
+
+        wait fot (3*(TIME_PERIOD/2));
+        in_start <= '0';
+
+        wait until (out_done = '1');
+
+        wait for (TIME_PERIOD/2);
+        -- Prime number generation
+        in_instructions <= "11";
+        in_start <= '1';
+
+        wait fot (3*(TIME_PERIOD/2));
+        in_start <= '0';
+
+        wait until (out_done = '1');
+
+
+    end process;
+
+end architecture; 
