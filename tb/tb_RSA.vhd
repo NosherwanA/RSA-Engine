@@ -22,3 +22,30 @@ architecture test of tb_RSA is
             result              : out std_logic_vector(7 downto 0)
         );
     end component;
+
+    signal in_clk               : std_logic;
+    signal in_reset             : std_logic;
+    signal in_start             : std_logic;
+    signal out_busy             : std_logic;
+    signal out_done             : std_logic;
+    signal in_instruction       : std_logic_vector(1 downto 0);
+    signal in_message           : std_logic_vector(7 downto 0);
+    signal in_key               : std_logic_vector(7 downto 0);
+    signal in_in_modulus        : std_logic_vector(7 downto 0);
+    signal out_result           : std_logic_vector(7 downto 0);
+
+begin
+
+    DUT: RSA
+        port map(
+            in_clk,
+            in_reset,
+            in_start,
+            out_busy,
+            out_done, 
+            in_instruction,
+            in_message,
+            in_key,
+            in_in_modulus,
+            out_result
+        );
