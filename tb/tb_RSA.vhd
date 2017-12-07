@@ -34,6 +34,8 @@ architecture test of tb_RSA is
     signal in_in_modulus        : std_logic_vector(7 downto 0);
     signal out_result           : std_logic_vector(7 downto 0);
 
+    constant TIME_PERIOD        : time := 20 ns; 
+
 begin
 
     DUT: RSA
@@ -49,3 +51,11 @@ begin
             in_in_modulus,
             out_result
         );
+
+    clock_process: process
+    begin
+        in_clk <= '0';
+        wait for (TIME_PERIOD/2);
+        in_clk <= '1';
+        wait for (TIME_PERIOD/2);
+    end process;
