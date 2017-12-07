@@ -71,6 +71,7 @@ architecture internal of RSA is
     signal next_state       : State_Type;
 
     signal to_display       : std_logic_vector(7 downto 0);
+    signal operand          : std_logic_vector(1 downto 0);
 
     -- A) For Prime Number Genereator
     signal number_to_test   : std_logic_vector(7 downto 0);
@@ -158,14 +159,33 @@ begin
                 ME_reset <= '1';
 
                 if (start = '1') then
-                    next_state <= OPERATION_SELECT
+                    next_state <= OPERATION_SELECT;
+                    operand <= instruction;
                 else
                     next_state <= IDLE;
+                    operand <= "00";
                 end if;
 
             when OPERATION_SELECTION =>
-            
+                to_display <= "00000000";
 
+                -- Operand Decoding
+                -- 00 => Nothing yet. Available for future usage (e.g. key generation)
+                -- 01 => Encryption
+                -- 10 => Decryption 
+                -- 11 => Prime Number Generation
+
+                case operand is
+                    when "00" =>
+                        next_state <= IDLE; -- Can be used for future additions to the FSM
+                    when "01" =>
+                        next_state <= MOD_EXP_START; 
+                    when "10" =>
+                        next_state <= MOD_EXP_START;
+                    when "11" =>
+                        next_state <= PRIME_GENERATOR_START;
+                end case;
+                    
             when PRIME_GENERATOR_START => 
                 MRT_start <= '1';
                 MRT_input_num <= PRNG_output;
@@ -209,7 +229,7 @@ begin
 
             when others =>
                 next_state <= S_RESET;
-                
+
         end case;
     end process;
 
