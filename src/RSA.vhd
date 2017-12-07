@@ -62,11 +62,15 @@ architecture internal of RSA is
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_WAIT,
                         PRIME_GENERATOR_TEST_RESULT,
+                        MOD_EXP_START,
+                        MOD_EXP_WAIT,
                         IDLE
                         );
 
     signal curr_state       : State_Type;
     signal next_state       : State_Type;
+
+    signal to_display       : std_logic_vector(7 downto 0);
 
     -- A) For Prime Number Genereator
     signal number_to_test   : std_logic_vector(7 downto 0);
@@ -167,6 +171,10 @@ begin
                 else
                     next_state <= PRIME_GENERATOR_START;
                 end if;
+            
+            when MOD_EXP_START =>
+            
+            when MOD_EXP_WAIT =>
 
 
         end case;
