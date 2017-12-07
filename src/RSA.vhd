@@ -146,6 +146,22 @@ begin
     begin
         case curr_state is
             when S_RESET =>
+                PRNG_reset <= '0';
+                MRT_reset <= '0';
+                ME_reset <= '0';
+
+                next_state <= IDLE;
+
+            when IDLE =>
+                PRNG_reset <= '1';
+                MRT_reset <= '1';
+                ME_reset <= '1';
+
+                if (start = '1') then
+                    next_state <= OPERATION_SELECT
+                else
+                    next_state <= IDLE;
+                end if;
 
             when OPERATION_SELECTION =>
             
@@ -190,9 +206,6 @@ begin
                     to_display <= "00000000";
                     next_state <= MOD_EXP_WAIT;
                 end if;
-
-
-
         end case;
     end process;
 
