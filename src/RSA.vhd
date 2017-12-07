@@ -167,9 +167,11 @@ begin
 
             when PRIME_GENERATOR_TEST_RESULT =>
                 if(mm_isPrime = '1') then
+                    to_display <= number_to_test;
                     next_state <= IDLE; 
                 else
                     next_state <= PRIME_GENERATOR_START;
+                    to_display <= "00000000";
                 end if;
             
             when MOD_EXP_START =>
