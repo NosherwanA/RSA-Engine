@@ -12,7 +12,7 @@ entity RSA is
         instruction         : in std_logic_vector(1 downto 0);
         message             : in std_logic_vector(7 downto 0);
         key                 : in std_logic_vector(7 downto 0);
-        modulus             : in std_logic_vector(7 downto 0);
+        in_modulus          : in std_logic_vector(7 downto 0);
         result              : out std_logic_vector(7 downto 0)
     );
 end RSA;
@@ -175,6 +175,10 @@ begin
                 end if;
             
             when MOD_EXP_START =>
+                ME_start <= '1';
+                ME_base <= message;
+                ME_exponent <= key;
+                ME_modulus <= 
             
             when MOD_EXP_WAIT =>
 
