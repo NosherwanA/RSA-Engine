@@ -57,13 +57,13 @@ architecture internal of RSA is
 
     -- SIGNALS USED
     
-    type State_Type is (S_START,
+    type State_Type is (S_RESET,
                         OPERATION_SELECTION,
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_WAIT,
                         PRIME_GENERATOR_TEST_NUMBER,
                         PRIME_GENERATOR_TEST_RESULT,
-                        S_DONE
+                        IDLE
                         );
 
     signal curr_state       : State_Type;
@@ -109,7 +109,7 @@ begin
     begin
         if rising_edge(clk) then
             if (reset = '0') then
-                curr_state <= S_START;
+                curr_state <= S_RESET;
             else
                 curr_state <= next_state;
             end if;
@@ -119,7 +119,7 @@ begin
     Transition_Section: process(clk, curr_state)
     begin
         case curr_state is
-            when S_START =>
+            when S_RESET =>
 
             when OPERATION_SELECTION =>
             
