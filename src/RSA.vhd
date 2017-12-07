@@ -206,6 +206,10 @@ begin
                     to_display <= "00000000";
                     next_state <= MOD_EXP_WAIT;
                 end if;
+
+            when others =>
+                next_state <= S_RESET;
+                
         end case;
     end process;
 
