@@ -61,7 +61,6 @@ architecture internal of RSA is
                         OPERATION_SELECTION,
                         PRIME_GENERATOR_START,
                         PRIME_GENERATOR_WAIT,
-                        PRIME_GENERATOR_TEST_NUMBER,
                         PRIME_GENERATOR_TEST_RESULT,
                         IDLE
                         );
@@ -157,12 +156,12 @@ begin
             when PRIME_GENERATOR_WAIT =>
                 MRT_start <= '0';
                 if(MRT_done = '1') then
-                    next_state <= PRIME_GENERATOR_TEST_NUMBER;
+                    next_state <= PRIME_GENERATOR_TEST_RESULT;
                 else
                     next_state <= PRIME_GENERATOR_WAIT;
                 end if;
 
-            when PRIME_GENERATOR_TEST_NUMBER =>
+            when PRIME_GENERATOR_TEST_RESULT =>
                 if(mm_isPrime = '1') then
                     next_state <= IDLE; 
                 else
