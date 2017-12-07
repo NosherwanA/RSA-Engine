@@ -178,9 +178,19 @@ begin
                 ME_start <= '1';
                 ME_base <= message;
                 ME_exponent <= key;
-                ME_modulus <= 
+                ME_modulus <= in_modulus;
+
+                next_state <= MOD_EXP_WAIT;
             
             when MOD_EXP_WAIT =>
+                if (ME_done = '1') then
+                    to_display <= ME_result;
+                    next_state <= IDLE;
+                else
+                    to_display <= "00000000";
+                    next_state <= MOD_EXP_WAIT;
+                end if;
+
 
 
         end case;
