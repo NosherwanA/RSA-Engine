@@ -184,7 +184,8 @@ begin
                         next_state <= MOD_EXP_START;
                     when "11" =>
                         next_state <= PRIME_GENERATOR_START;
-                        
+                    when others =>
+                        next_state <= IDLE;
                 end case;
                     
             when PRIME_GENERATOR_START => 
