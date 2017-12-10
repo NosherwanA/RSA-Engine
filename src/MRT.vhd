@@ -16,7 +16,7 @@ end entity;
 
 architecture internal of MRT is
 
-    type State_Type is (S_START,
+    type State_Type is (IDLE,
                         INITIAL_SETUP,
                         CHECK_D_AND_ONE,
                         BITSHIFT_D,
@@ -31,8 +31,8 @@ architecture internal of MRT is
                         SECOND_WHILE,
                         COMPUTE_T_SW,
                         STORE_T_SW,
-                        COMPARE_T_SW,
-                        S_DONE);
+                        COMPARE_T_SW
+                        );
     
     signal prime                : std_logic:= '0';
     
@@ -48,6 +48,7 @@ architecture internal of MRT is
     signal check                : std_logic;
     signal counter_j            : integer;
     signal counter_j_flag       : std_logic;
+    signal counter_j_clear      : std_logic;
 
     signal int_t                : integer;
     signal int_p                : integer;
@@ -60,6 +61,7 @@ architecture internal of MRT is
 
     signal counter_k            : integer;
     signal counter_k_flag       : std_logic;
+    signal counter_k_clear      : std_logic;
 
         
 
@@ -70,7 +72,7 @@ architecture internal of MRT is
         begin
             if (rising_edge(clk)) then
                 if (reset = '0') then
-                    curr_state <= S_START;
+                    curr_state <= IDLE;
                 else
                     curr_state <= next_state;
                 end if;
@@ -80,7 +82,7 @@ architecture internal of MRT is
         Transition_Section  : process(clk, curr_state)
         begin
             case curr_state is
-                when S_START =>
+                when IDLE =>
                     int_p <= 0;
                     int_t <= 0;
                     int_N <= 0;
@@ -94,13 +96,18 @@ architecture internal of MRT is
                     counter_j_flag <= '0';
                     counter_k_flag <= '0';
 
+                    counter_j_clear <= '0';
+                    counter_k_clear <= '0';
+
                     if (start = '1') then 
                         next_state <= INITIAL_SETUP;
                     else
-                        next_state <= S_START;
+                        next_state <= IDLE;
                     end if;
 
                 when INITIAL_SETUP =>
+                    counter_j_clear <= '1';
+                    counter_k_clear <= '1';
                     int_N <= to_integer(unsigned(numberToCheck));
                     if (numberToCheck = "00000000") then
                         N_minus_one <= "00000000";
@@ -114,13 +121,13 @@ architecture internal of MRT is
 
                     if (numberToCheck(0) = '0') then --checking for even numbers
                         prime <= '0';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     elsif (numberToCheck = "00000000") then --EDGE CASE 0
                         prime <= '0';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     elsif (numberToCheck = "00000001") then -- EDGE CASE 1
                         prime <= '0';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     else
                         prime <= '0';
                         next_state <= BITSHIFT_D;
@@ -188,10 +195,10 @@ architecture internal of MRT is
                 when COMPARE_T =>
                     if (int_t = 1) then
                         prime <= '1';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     elsif (int_t = int_N_minus_one) then
                         prime <= '1';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     else
                         prime <= '0';
                         next_state <= SECOND_WHILE;
@@ -204,7 +211,7 @@ architecture internal of MRT is
                         next_state <= COMPUTE_T_SW;
                     else
                         prime <= '0';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     end if;
 
                 when COMPUTE_T_SW =>
@@ -221,29 +228,21 @@ architecture internal of MRT is
                     counter_k_flag <= '1';
                     if (int_t = int_N_minus_one) then
                         prime <= '1';
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     else
                         prime <= '0';
                         next_state <= SECOND_WHILE;
-                    end if;
-
-                when S_DONE =>
-                    if (reset = '0') then 
-                        next_state <= S_START;
-                    else
-                        next_state <= S_DONE;
-                    end if;
-                
+                    end if;       
             end case;
         end process;
 
         Decoder_Section     : process(curr_state)
         begin
             case curr_state is
-					when S_START =>
+					when IDLE =>
 						busy <= '0';
-						done <= '0';
-						isPrime <= '0';
+						done <= '1';
+						isPrime <= prime;
 	
 					when INITIAL_SETUP =>
 						busy <= '1';
@@ -319,19 +318,15 @@ architecture internal of MRT is
 						busy <= '1';
 						done <= '0';
 						isPrime <= '0';
-	
-					when S_DONE =>
-						busy <= '0';
-						done <= '1';
-						isPrime <= prime;
-	
             end case;
         end process;
 
-        Counter_J_Section   : process(clk, reset, counter_j_flag)
+        Counter_J_Section   : process(clk, counter_j_clear, counter_j_flag)
         begin
             if (rising_edge(clk)) then
                 if (reset = '0') then 
+                    counter_j <= 0;
+                elsif (counter_j_flag = '0') then
                     counter_j <= 0;
                 elsif (counter_j_flag = '1') then
                     counter_j <= counter_j + 1;
@@ -339,10 +334,12 @@ architecture internal of MRT is
             end if;
         end process;
 
-        Counter_K_Section   : process(clk, reset, counter_k_flag)
+        Counter_K_Section   : process(clk, counter_k_clear, counter_k_flag)
         begin
             if (rising_edge(clk)) then
                 if (reset = '0') then 
+                    counter_k <= 0;
+                elsif (counter_k_clear = '0') then
                     counter_k <= 0;
                 elsif (counter_k_flag = '1') then
                     counter_k <= counter_k + 1;

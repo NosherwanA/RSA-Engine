@@ -27,12 +27,12 @@ architecture internal of Modular_Multiplier is
     end component;
 
     --State Machine Variables
-    type State is  (S_START,
+    type State is  (IDLE,
                     MULTIPLICATION,
                     COMPUTE_PROD_MOD,
                     REDUCTION,
-                    CONV_REMAINDER,
-                    S_DONE);
+                    CONV_REMAINDER
+                    );
 
     signal curr_state       : State;
     signal next_state       : State;
@@ -58,31 +58,24 @@ begin
         begin
             if rising_edge(clk) then
                 if reset = '0' then
-                    curr_state <= S_START;
+                    curr_state <= IDLE;
                 else
                     curr_state <= next_state;
                 end if;
             end if;
-            --if (reset = '0') then
-            --    curr_state <= A;
-            --elsif (rising_edge(clk)) then 
-            --    curr_state <= next_state;
-            --else
-            --    curr_state <= curr_state;
-            --end if;
-        end process Register_Section;
+    end process Register_Section;
 
     Transition_Section: process(clk, curr_state)
         begin
             case curr_state is
-                when S_START =>
+                when IDLE =>
                     num1 <= "00000000";
                     num2 <= "00000000";
 
                     if (start = '1') then
                         next_state <= MULTIPLICATION;
                     else 
-                        next_state <= S_START;
+                        next_state <= IDLE;
                     end if;
                 
                 when MULTIPLICATION =>
@@ -115,28 +108,21 @@ begin
                 when CONV_REMAINDER =>
                     remainder <= std_logic_vector(to_unsigned(int_remainder, 8));
 
-                    next_state <= S_DONE;
-                
-                when S_DONE =>
-                    if (reset = '0') then 
-                        next_state <= S_START;
-                    else 
-                        next_state <= S_DONE;
-                    end if;
+                    next_state <= IDLE;
                 
                 when others =>
-                    next_state <= S_START; 
+                    next_state <= IDLE; 
 
             end case;
 
-        end process Transition_Section;
+    end process Transition_Section;
 
     Decoder_Section: process(curr_state)
         begin
             case curr_state is 
-                when S_START =>
-                    result <= "00000000";
-                    done <= '0';
+                when IDLE =>
+                    result <= remainder;
+                    done <= '1';
                     busy <= '0';
                 
                 when MULTIPLICATION =>
@@ -159,16 +145,11 @@ begin
                     done <= '0';
                     busy <= '1';
 
-                when S_DONE =>
-                    result <= remainder;
-                    done <= '1';
-                    busy <= '0';
-                    
                 when others =>
                     result <= "00000000";
                     done <= '0';
                     busy <= '0';
             end case;
-        end process Decoder_Section;
+    end process Decoder_Section;
                 
 end architecture;

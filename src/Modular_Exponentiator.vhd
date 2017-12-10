@@ -18,10 +18,11 @@ end Modular_Exponentiator;
 
 architecture internal of Modular_Exponentiator is 
 
-    type State_Type is (S_START,
+    type State_Type is (S_RESET,
                         MULTIPLICATION,
+                        MULT_WAIT,
                         INCREMENT_COUNTER,
-                        S_DONE,
+                        IDLE,
                         COMPARE_COUNTER_ITERATIONS,
                         INITIAL_SETUP);
       
@@ -32,13 +33,13 @@ architecture internal of Modular_Exponentiator is
     signal ITERATIONS       : integer:= 0;
     signal counter          : integer:= 0;
     signal count_up         : std_logic:= '0';
+    signal count_clear      : std_logic:= '0';
 
     signal num1             : std_logic_vector(7 downto 0);
     signal num2             : std_logic_vector(7 downto 0);
     signal mm_mod           : std_logic_vector(7 downto 0);
     signal mm_result        : std_logic_vector(7 downto 0);
     signal mm_start         : std_logic;
-    signal mm_reset         : std_logic;
     signal mm_busy          : std_logic;
     signal mm_done          : std_logic;
 
@@ -71,7 +72,7 @@ architecture internal of Modular_Exponentiator is
                 mm_result,
                 clk,
                 mm_start,
-                mm_reset,
+                reset,
                 mm_done,
                 mm_busy
             );
@@ -82,7 +83,7 @@ architecture internal of Modular_Exponentiator is
 
             if rising_edge(clk) then
                 if (reset = '0') then
-                    curr_state <= S_START;
+                    curr_state <= S_RESET;
                 else
                     curr_state <= next_state;
                 end if;
@@ -93,40 +94,56 @@ architecture internal of Modular_Exponentiator is
         begin
 
             case curr_state is
-                when S_START =>
-                    mm_reset <= '0';
+                when S_RESET =>
+                    temp <= "00000000";
+
+                    next_state <= IDLE;
+
+                when IDLE =>
                     count_up <= '0';
                     num1 <= "00000000";
                     num2 <= "00000000";
-                    temp <= "00000000";
+                    count_clear <= '1';
 
                     If (start = '1') then 
                         next_state <= INITIAL_SETUP;
                     else
-                        next_state <= S_START;
+                        next_state <= IDLE;
                     end if;
 
                 when INITIAL_SETUP =>
                     num1 <= base;
                     num2 <= base;
                     mm_mod <= modulus;
+                    count_clear <= '0';
+                    temp <= "00000000";
                     ITERATIONS <= ((to_integer(unsigned(exponent))) - 1);
 
                     next_state <= MULTIPLICATION;
 
                 when MULTIPLICATION =>
-                    mm_reset <= '1';
                     mm_start <= '1';
-                    if (mm_done = '0') then 
-                        next_state <= MULTIPLICATION;
+                    next_state <= MULT_WAIT;
+                    --if (mm_done = '0') then 
+                    --    next_state <= MULTIPLICATION;
+                    --else 
+                    --    temp <= mm_result;
+                    --    next_state <= INCREMENT_COUNTER;
+                    --end if;
+
+                when MULT_WAIT =>
+                     if (mm_done = '0') then 
+                        next_state <= MULT_WAIT;
+                        
+                        --temp <= "00000000";
                     else 
                         temp <= mm_result;
+                        mm_start <= '0';
                         next_state <= INCREMENT_COUNTER;
                     end if;
 
                 when INCREMENT_COUNTER =>
-                    mm_start <= '0';
-                    mm_reset <= '0';
+                    --mm_start <= '0';
                     count_up <= '1';
 
                     next_state <= COMPARE_COUNTER_ITERATIONS;
@@ -134,20 +151,12 @@ architecture internal of Modular_Exponentiator is
                 when COMPARE_COUNTER_ITERATIONS =>
                     count_up <= '0';
                     if(counter = ITERATIONS) then 
-                        next_state <= S_DONE;
+                        next_state <= IDLE;
                     else
                         num2 <= temp;
-                        mm_reset <= '1';
                         next_state <= MULTIPLICATION;
                     end if;
 
-                when S_DONE =>
-                    if (reset = '0') then
-                        next_state <= S_START;
-                    else
-                        next_state <= S_DONE;
-                    end if;
-                
             end case;
         
         end process;
@@ -156,10 +165,15 @@ architecture internal of Modular_Exponentiator is
         begin
 
             case curr_state is
-                when S_START =>
+                when S_RESET =>
                     result <= "00000000";
+                    busy <= '1';
+                    done <= '1';
+
+                when IDLE =>
+                    result <= temp;
                     busy <= '0';
-                    done <= '0';
+                    done <= '1';
 
                 when INITIAL_SETUP =>
                     result <= "00000000";
@@ -167,6 +181,11 @@ architecture internal of Modular_Exponentiator is
                     done <= '0';
 
                 when MULTIPLICATION =>
+                    result <= "00000000";
+                    busy <= '1';
+                    done <= '0';
+                
+                when MULT_WAIT =>
                     result <= "00000000";
                     busy <= '1';
                     done <= '0';
@@ -180,21 +199,18 @@ architecture internal of Modular_Exponentiator is
                     result <= "00000000";
                     busy <= '1';
                     done <= '0';
-
-                when S_DONE =>
-                    result <= temp;
-                    busy <= '0';
-                    done <= '1';
                     
             end case;            
 
         end process;
 
-        Counter_Section: process(clk, reset, count_up)
+        Counter_Section: process(clk, reset, count_up, count_clear)
         begin
 
             if rising_edge(clk) then
                 if (reset = '0') then
+                    counter <= 0;
+                elsif (count_clear = '1') then
                     counter <= 0;
                 elsif (count_up = '1') then
                     counter <= counter + 1;
