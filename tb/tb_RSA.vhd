@@ -68,14 +68,14 @@ begin
         -- test for "00" instruction set
         in_instruction <= "00";
 
-        wait until (out_done = '1')
+        wait until (out_done = '1');
 
         wait for (TIME_PERIOD/2);
         --encryption
         in_instructions <= "01";
-        in_message <= 
-        in_key <= 
-        in_in_modulus <= 
+        in_message <= "01011101";
+        in_key <= "10000110";
+        in_in_modulus <= "11001101";
         in_start <= '1';
 
         wait fot (3*(TIME_PERIOD/2));
@@ -85,10 +85,10 @@ begin
         
         wait for (TIME_PERIOD/2);
         -- decryption
-        in_instructions <= "10";
-        in_message <= 
-        in_key <= 
-        in_in_modulus <= 
+        in_instruction <= "10";
+        in_message <= "10110110";
+        in_key <= "00110011";
+        in_in_modulus <= "11000010"
         in_start <= '1';
 
         wait fot (3*(TIME_PERIOD/2));
@@ -110,3 +110,12 @@ begin
     end process;
 
 end architecture; 
+
+-- p: 139
+-- q: 97
+
+-- n = pq = 139*97 = 13483
+
+-- phi of n = (p-1)(q-1) = 13248
+
+--
