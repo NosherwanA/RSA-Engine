@@ -159,7 +159,7 @@ begin
                 ME_reset <= '1';
 
                 if (start = '1') then
-                    next_state <= OPERATION_SELECT;
+                    next_state <= OPERATION_SELECTION;
                     operand <= instruction;
                 else
                     next_state <= IDLE;
@@ -184,6 +184,7 @@ begin
                         next_state <= MOD_EXP_START;
                     when "11" =>
                         next_state <= PRIME_GENERATOR_START;
+                        
                 end case;
                     
             when PRIME_GENERATOR_START => 
@@ -202,7 +203,7 @@ begin
                 end if;
 
             when PRIME_GENERATOR_TEST_RESULT =>
-                if(mm_isPrime = '1') then
+                if(MRT_isPrime = '1') then
                     to_display <= number_to_test;
                     next_state <= IDLE; 
                 else
